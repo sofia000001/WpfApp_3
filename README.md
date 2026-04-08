@@ -145,9 +145,10 @@ Vn = { Z, A, B, C, D }
 Основная идея метода рекурсивного спуска состоит в том, что каждому нетерминалу грамматики ставится в соответствие отдельная процедура синтаксического анализа. Эти процедуры вызываются в соответствии с правилами грамматики и последовательно распознают корректную цепочку лексем.
 
 ### Схема метода анализа
+<img width="1564" height="2484" alt="image" src="https://github.com/user-attachments/assets/5dba75c8-c91c-4baf-b36e-2ef2754310ed" />
 
 ### Диаграмма конечного автомата
-
+<img width="2718" height="2556" alt="image" src="https://github.com/user-attachments/assets/e4515034-b9e8-42e0-9ed2-115e031d3e45" />
 
 ### Программные процедуры
 
@@ -222,6 +223,7 @@ end procedure
 
 ### Пример 1: Корректная строка
 **Вход:** `String name = "Hello World";`
+<img width="1177" height="322" alt="image" src="https://github.com/user-attachments/assets/9c81cafd-003f-453a-b9ed-ff9d9ddd5eae" />
 
 **Результат:** 
 - Синтаксических ошибок не обнаружено
@@ -230,39 +232,39 @@ end procedure
 
 ---
 
-### Пример 2: Незакрытая строковая константа
-**Вход:** `String name = "Hello;`
+### Пример 2: Незакрытая строка
+**Вход:** `String name = "Hello"`
+<img width="1169" height="317" alt="image" src="https://github.com/user-attachments/assets/9d18d48d-eb66-48f5-bfd5-1fd9233bd935" />
 
 
 ---
 
-### Пример 3: Незакрытая строка без точки с запятой
+### Пример 3: Незакрытая строка c 2 ошибками
 **Вход:** `String name = "Hello`
+<img width="919" height="153" alt="image" src="https://github.com/user-attachments/assets/b1f46e9a-6783-4cb5-a7cd-eb3ca7d95fa3" />
 
 ---
 
 ### Пример 4: Недопустимые символы
 **Вход:** `Str&&ing name = "Hello";`
+<img width="732" height="133" alt="image" src="https://github.com/user-attachments/assets/44ed87a9-5fec-40a0-bdaf-4a05a96c27d1" />
 
 ---
 
 ### Пример 5: Пустая строка
-
-
----
-
-### Пример 6: Отсутствует ключевое слово String
-**Вход:** `name = "Hello";`
+<img width="615" height="148" alt="image" src="https://github.com/user-attachments/assets/104c295e-5dde-4982-b28a-ff363f328c90" />
 
 ---
 
-### Пример 7: Отсутствует оператор присваивания
+### Пример 6: Отсутствует оператор присваивания
 **Вход:** `String name "Hello";`
+<img width="775" height="139" alt="image" src="https://github.com/user-attachments/assets/a6fa3d91-918f-4d82-90d0-ff2b6fd93fb5" />
 
 ---
 
-### Пример 8: Несколько ошибок в одной строке
+### Пример 7: Несколько ошибок в одной строке
 **Вход:** `Str&&ing name = "Hello`
+<img width="921" height="196" alt="image" src="https://github.com/user-attachments/assets/63f6ab95-f491-4691-8048-162acd7e3aa1" />
 
 ---
 
