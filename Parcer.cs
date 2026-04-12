@@ -104,21 +104,80 @@ namespace WpfApp_3
 
         private void ParseStringDeclaration()
         {
-            // 1. Проверка ключевого слова "String"
+
             if (currentToken == null)
             {
                 AddError("(конец файла)", 1, 1, "Ожидалось ключевое слово 'String'");
                 return;
             }
 
-            // Если встретили ошибку (недопустимые символы)
+
             if (currentToken.Code == CODE_ERROR)
             {
+
                 AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
                     currentToken.ErrorMessage ?? "Недопустимые символы");
+
+                int errorLine = currentToken.Line;
+                int errorPos = currentToken.StartPos;
+
+
                 NextToken();
-                // После пропуска недопустимых символов, продолжаем анализ
-                ParseAfterError();
+
+
+                AddError("(пропущено)", errorLine, errorPos, "Ожидалось ключевое слово 'String'");
+
+
+                AddError("(пропущено)", errorLine, errorPos, "Ожидался идентификатор");
+
+
+                if (currentToken != null && currentToken.Code == CODE_ASSIGN)
+                {
+                    NextToken();
+                }
+                else
+                {
+                    AddError("(пропущено)", errorLine, errorPos, "Ожидался оператор присваивания '='");
+                }
+
+
+                if (currentToken != null)
+                {
+                    if (currentToken.Code == CODE_STRING)
+                    {
+                        if (!currentToken.Value.EndsWith("\""))
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Незакрытая строковая константа");
+                        }
+                        NextToken();
+                    }
+                    else if (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)
+                    {
+                        AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                            "Незакрытая строковая константа");
+                        NextToken();
+                    }
+                    else
+                    {
+                        AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                            "Ожидалась строковая константа в двойных кавычках");
+                    }
+                }
+                else
+                {
+                    AddError("(конец строки)", errorLine, errorPos + 1, "Ожидалась строковая константа");
+                }
+
+
+                CheckSemicolon();
+                return;
+            }
+
+            if (currentToken.Code == CODE_SEMICOLON)
+            {
+                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                    "Ожидалось ключевое слово 'String'");
                 return;
             }
 
@@ -132,7 +191,7 @@ namespace WpfApp_3
 
             NextToken();
 
-            // 2. Проверка идентификатора
+
             if (currentToken == null)
             {
                 AddError("(конец файла)", 1, 1, "Ожидался идентификатор после 'String'");
@@ -158,7 +217,7 @@ namespace WpfApp_3
 
             NextToken();
 
-            // 3. Проверка оператора =
+
             if (currentToken == null)
             {
                 AddError("(конец файла)", 1, 1, "Ожидался оператор '='");
@@ -184,7 +243,7 @@ namespace WpfApp_3
 
             NextToken();
 
-            // 4. Проверка строковой константы
+
             if (currentToken == null)
             {
                 AddError("(конец файла)", 1, 1, "Ожидалась строковая константа");
@@ -218,16 +277,28 @@ namespace WpfApp_3
                 return;
             }
 
-            // 5. Проверка точки с запятой
-            CheckSemicolon();
+
+            bool hasSemicolon = (currentToken != null && currentToken.Code == CODE_SEMICOLON);
+
+            if (isUnclosedString && hasSemicolon)
+            {
+                NextToken();
+                return;
+            }
+            else if (isUnclosedString && !hasSemicolon)
+            {
+
+                CheckSemicolon();
+                return;
+            }
+            else
+            {
+                CheckSemicolon();
+            }
         }
 
-        /// <summary>
-        /// Обработка ситуации после ошибки - продолжаем анализ
-        /// </summary>
         private void ParseAfterError()
         {
-            // Ищем ключевое слово String
             while (currentToken != null)
             {
                 if (currentToken.Code == CODE_KEYWORD && currentToken.Value == "String")
@@ -235,15 +306,12 @@ namespace WpfApp_3
                     ParseStringDeclaration();
                     return;
                 }
-                // Ищем оператор = для проверки выражения
                 if (currentToken.Code == CODE_ASSIGN)
                 {
                     NextToken();
-                    // Ищем строковую константу
                     if (currentToken != null && (currentToken.Code == CODE_STRING ||
                         (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)))
                     {
-                        // Добавляем ошибку о незакрытой строке, если нужно
                         if (currentToken.Code == CODE_STRING && !currentToken.Value.EndsWith("\""))
                         {
                             AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
@@ -255,8 +323,6 @@ namespace WpfApp_3
                                 "Незакрытая строковая константа");
                         }
                         NextToken();
-
-                        // Проверяем точку с запятой
                         CheckSemicolon();
                         return;
                     }
@@ -275,9 +341,6 @@ namespace WpfApp_3
             CheckSemicolon();
         }
 
-        /// <summary>
-        /// Проверка наличия точки с запятой в конце
-        /// </summary>
         private void CheckSemicolon()
         {
             if (currentToken == null)
@@ -310,8 +373,6 @@ namespace WpfApp_3
                 }
                 NextToken();
             }
-
-            CheckSemicolon();
         }
 
         private void SkipToAssign()
@@ -360,7 +421,6 @@ namespace WpfApp_3
 
         private void AddError(string fragment, int line, int position, string description)
         {
-            // Проверяем на дублирование
             foreach (var err in errors)
             {
                 if (err.Line == line && err.Position == position && err.Description == description)

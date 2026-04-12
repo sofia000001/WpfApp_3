@@ -26,7 +26,7 @@ namespace WpfApp_3
                 }
                 else
                 {
-                    return $"строка {Line}, {StartPos}-{EndPos}";
+                    return $"строка {Line}, позиция {StartPos}";
                 }
             }
         }
@@ -34,20 +34,20 @@ namespace WpfApp_3
 
     public class LexicalAnalyzer
     {
-        private const int CODE_STRING = 1;
-        private const int CODE_NUMBER = 2;
-        private const int CODE_IDENTIFIER = 3;
-        private const int CODE_KEYWORD = 4;
-        private const int CODE_ASSIGN = 5;
-        private const int CODE_SEMICOLON = 6;
-        private const int CODE_SPACE = 7;
-        private const int CODE_PLUS = 8;
-        private const int CODE_MINUS = 9;
-        private const int CODE_SLASH = 10;
-        private const int CODE_STAR = 11;
-        private const int CODE_LPAREN = 12;
-        private const int CODE_RPAREN = 13;
-        private const int CODE_ERROR = 14;
+        public const int CODE_STRING = 1;
+        public const int CODE_NUMBER = 2;
+        public const int CODE_IDENTIFIER = 3;
+        public const int CODE_KEYWORD = 4;
+        public const int CODE_ASSIGN = 5;
+        public const int CODE_SEMICOLON = 6;
+        public const int CODE_SPACE = 7;
+        public const int CODE_PLUS = 8;
+        public const int CODE_MINUS = 9;
+        public const int CODE_SLASH = 10;
+        public const int CODE_STAR = 11;
+        public const int CODE_LPAREN = 12;
+        public const int CODE_RPAREN = 13;
+        public const int CODE_ERROR = 14;
 
         private readonly HashSet<string> keywords = new HashSet<string>
         {
@@ -57,8 +57,17 @@ namespace WpfApp_3
         private bool IsValidSeparator(char c)
         {
             return c == ' ' || c == '\t' || c == '\n' || c == '\r' ||
-                   c == '=' || c == ';' || c == '"' || c == '+' ||
-                   c == '-' || c == '/' || c == '*' || c == '(' || c == ')';
+                   c == '=' || c == ';' || c == '"';
+        }
+
+        private bool IsValidIdentifierStart(char c)
+        {
+            return char.IsLetter(c) || c == '_';
+        }
+
+        private bool IsValidIdentifierPart(char c)
+        {
+            return char.IsLetterOrDigit(c) || c == '_';
         }
 
         private bool IsValidNumber(string s)
@@ -74,10 +83,10 @@ namespace WpfApp_3
         private bool IsValidIdentifier(string s)
         {
             if (string.IsNullOrEmpty(s)) return false;
-            if (!char.IsLetter(s[0]) && s[0] != '_') return false;
+            if (!IsValidIdentifierStart(s[0])) return false;
             for (int i = 1; i < s.Length; i++)
             {
-                if (!char.IsLetterOrDigit(s[i]) && s[i] != '_') return false;
+                if (!IsValidIdentifierPart(s[i])) return false;
             }
             return true;
         }
@@ -280,7 +289,7 @@ namespace WpfApp_3
                     continue;
                 }
 
-                // Обработка последовательностей символов (идентификаторы, числа, ошибки)
+                // Обработка последовательностей символов - собираем всё до пробела или оператора
                 int seqStartPos = currentPos;
                 int seqStartLine = lineNumber;
                 StringBuilder sequence = new StringBuilder();
@@ -288,7 +297,9 @@ namespace WpfApp_3
                 while (i < text.Length)
                 {
                     char currentChar = text[i];
-                    if (IsValidSeparator(currentChar))
+                    // Останавливаемся на пробелах и основных разделителях
+                    if (currentChar == ' ' || currentChar == '\t' || currentChar == '\n' || currentChar == '\r' ||
+                        currentChar == '=' || currentChar == ';' || currentChar == '"')
                     {
                         break;
                     }
@@ -299,6 +310,7 @@ namespace WpfApp_3
 
                 string seqValue = sequence.ToString();
 
+                // Проверяем, является ли последовательность корректной лексемой
                 bool isKeyword = keywords.Contains(seqValue);
                 bool isNumber = IsValidNumber(seqValue);
                 bool isIdentifier = IsValidIdentifier(seqValue);
@@ -317,6 +329,7 @@ namespace WpfApp_3
                 }
                 else
                 {
+                    // Вся последовательность - одна ошибка
                     tokens.Add(new Token
                     {
                         Code = CODE_ERROR,
