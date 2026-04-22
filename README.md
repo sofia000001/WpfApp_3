@@ -1,8 +1,6 @@
 # Лабораторная работа №3
 ## Разработка синтаксического анализатора (парсера)
 
----
-
 ## Автор
 - **Студент:** Дарчук Софья
 - **Группа:** АП-326
@@ -24,10 +22,7 @@
 ---
 
 ## Вариант задания
-**Номер варианта:** 59 
-
-
-Объявление и инициализация строковой константы на языке Java.
+**Вариант: Объявление и инициализация строковой константы на языке Java.** 
 
 ### Описание синтаксической конструкции:
 
@@ -198,21 +193,26 @@ Vn = { Z, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O }
 
 ### Пример 1: Корректная строка
 **Вход:** `String name = "Hello";`
+
 <img width="1170" height="322" alt="image" src="https://github.com/user-attachments/assets/44bdf122-0444-4bd6-aa2b-aebbfe4928c5" />
 
 ### Пример 2: Незакрытая строка без точки с запятой
 **Вход:**
 `String name = "Hello`
+
 <img width="911" height="154" alt="image" src="https://github.com/user-attachments/assets/3824f7db-9efc-4abb-9ad8-67c491236b28" />
 
 ### Пример 3: Несколько ошибок 
 **Вход:** `Str&&ing = "Hello`
+
 <img width="1174" height="314" alt="image" src="https://github.com/user-attachments/assets/0c1acede-5196-4e21-aea9-75876188975a" />
 
 ### Пример 4: Пустая строка
+
 <img width="671" height="205" alt="image" src="https://github.com/user-attachments/assets/df18f94d-084e-4143-91e7-d0aa54b210d4" />
 
 ### Пример 5: Отсутствует ключевое слово String 
 **Вход:** `;`
+
 <img width="790" height="208" alt="image" src="https://github.com/user-attachments/assets/fc606f5b-4409-4ca6-a27e-4ed423aa275a" />
 
