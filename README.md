@@ -131,7 +131,7 @@ String <идентификатор> = "<строковая_константа>";
 
 ## Диаграмма конечного автомата
 
-<img width="3204" height="3084" alt="image" src="https://github.com/user-attachments/assets/0a44180d-2e09-4dd8-8fe4-b2c5f2a35522" />
+<img width="3204" height="3084" alt="image" src="https://github.com/user-attachments/assets/d0f8b4e7-8ecc-449c-825b-34d497dd267d" />
 
 ---
 
@@ -183,23 +183,26 @@ String <идентификатор> = "<строковая_константа>";
 
 <img width="1170" height="322" alt="image" src="https://github.com/user-attachments/assets/44bdf122-0444-4bd6-aa2b-aebbfe4928c5" />
 
-### Пример 2: Незакрытая строка без точки с запятой
-**Вход:**
-`String name = "Hello`
+### Пример 2: Незакрытая строка 
+**Вход:** `String name = "Hello"`
 
-<img width="911" height="154" alt="image" src="https://github.com/user-attachments/assets/3824f7db-9efc-4abb-9ad8-67c491236b28" />
+<img width="815" height="156" alt="image" src="https://github.com/user-attachments/assets/01d303f4-6db4-4b65-96d1-344442b78917" />
 
-### Пример 3: Несколько ошибок 
+### Пример 3: Незакрытая строка без точки с запятой
+**Вход:** `String name = "Hello`
+
+<img width="819" height="158" alt="image" src="https://github.com/user-attachments/assets/1d51fd11-da5f-4550-b6ab-3fabb62d27e3" />
+
+### Пример 4: Несколько ошибок 
 **Вход:** `Str&&ing = "Hello`
 
-<img width="1174" height="314" alt="image" src="https://github.com/user-attachments/assets/0c1acede-5196-4e21-aea9-75876188975a" />
+<img width="1179" height="320" alt="image" src="https://github.com/user-attachments/assets/960854c5-3e69-4722-a3cc-3c88725686c7" />
 
-### Пример 4: Пустая строка
+### Пример 5: Пустая строка
 
-<img width="671" height="205" alt="image" src="https://github.com/user-attachments/assets/df18f94d-084e-4143-91e7-d0aa54b210d4" />
+<img width="630" height="182" alt="image" src="https://github.com/user-attachments/assets/f748c26a-b437-4089-93a0-09979559fd13" />
 
-### Пример 5: Отсутствует ключевое слово String 
+### Пример 6: Отсутствует ключевое слово String 
 **Вход:** `;`
 
-<img width="790" height="208" alt="image" src="https://github.com/user-attachments/assets/fc606f5b-4409-4ca6-a27e-4ed423aa275a" />
-
+<img width="778" height="154" alt="image" src="https://github.com/user-attachments/assets/5ad302d5-1d36-484e-ae85-a99e098a0d68" />
