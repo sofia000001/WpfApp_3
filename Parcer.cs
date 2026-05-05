@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using WpfApp_3;
 
 namespace WpfApp_3
 {
@@ -29,7 +28,6 @@ namespace WpfApp_3
         private Token currentToken;
 
         private const int CODE_STRING = 1;
-        private const int CODE_NUMBER = 2;
         private const int CODE_IDENTIFIER = 3;
         private const int CODE_KEYWORD = 4;
         private const int CODE_ASSIGN = 5;
@@ -55,45 +53,19 @@ namespace WpfApp_3
             }
 
             SkipSpaces();
-
-            try
-            {
-                ParseStringDeclaration();
-            }
-            catch (Exception ex)
-            {
-                AddError(currentToken?.Value ?? "конец строки",
-                    currentToken?.Line ?? 1,
-                    currentToken?.StartPos ?? 1,
-                    $"Ошибка: {ex.Message}");
-            }
+            ParseStringDeclaration();
 
             return errors;
         }
 
         private void SkipSpaces()
         {
-            while (currentPos < tokens.Count)
+            while (currentPos < tokens.Count && tokens[currentPos].Code == CODE_SPACE)
             {
-                currentToken = tokens[currentPos];
-                if (currentToken.Code == CODE_SPACE)
-                {
-                    currentPos++;
-                }
-                else
-                {
-                    break;
-                }
+                currentPos++;
             }
 
-            if (currentPos >= tokens.Count)
-            {
-                currentToken = null;
-            }
-            else
-            {
-                currentToken = tokens[currentPos];
-            }
+            currentToken = (currentPos < tokens.Count) ? tokens[currentPos] : null;
         }
 
         private void NextToken()
@@ -102,321 +74,160 @@ namespace WpfApp_3
             SkipSpaces();
         }
 
+        /// <summary>
+        /// Автоматный разбор конструкции:
+        /// String id = "text";
+        /// </summary>
         private void ParseStringDeclaration()
         {
+            int state = 0;
 
-            if (currentToken == null)
-            {
-                AddError("(конец файла)", 1, 1, "Ожидалось ключевое слово 'String'");
-                return;
-            }
-
-
-            if (currentToken.Code == CODE_ERROR)
-            {
-
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    currentToken.ErrorMessage ?? "Недопустимые символы");
-
-                int errorLine = currentToken.Line;
-                int errorPos = currentToken.StartPos;
-
-
-                NextToken();
-
-
-                AddError("(пропущено)", errorLine, errorPos, "Ожидалось ключевое слово 'String'");
-
-
-                AddError("(пропущено)", errorLine, errorPos, "Ожидался идентификатор");
-
-
-                if (currentToken != null && currentToken.Code == CODE_ASSIGN)
-                {
-                    NextToken();
-                }
-                else
-                {
-                    AddError("(пропущено)", errorLine, errorPos, "Ожидался оператор присваивания '='");
-                }
-
-
-                if (currentToken != null)
-                {
-                    if (currentToken.Code == CODE_STRING)
-                    {
-                        if (!currentToken.Value.EndsWith("\""))
-                        {
-                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                                "Незакрытая строковая константа");
-                        }
-                        NextToken();
-                    }
-                    else if (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)
-                    {
-                        AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                            "Незакрытая строковая константа");
-                        NextToken();
-                    }
-                    else
-                    {
-                        AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                            "Ожидалась строковая константа в двойных кавычках");
-                    }
-                }
-                else
-                {
-                    AddError("(конец строки)", errorLine, errorPos + 1, "Ожидалась строковая константа");
-                }
-
-
-                CheckSemicolon();
-                return;
-            }
-
-            if (currentToken.Code == CODE_SEMICOLON)
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    "Ожидалось ключевое слово 'String'");
-                return;
-            }
-
-            if (currentToken.Code != CODE_KEYWORD || currentToken.Value != "String")
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    "Ожидалось ключевое слово 'String'");
-                SkipToNextString();
-                return;
-            }
-
-            NextToken();
-
-
-            if (currentToken == null)
-            {
-                AddError("(конец файла)", 1, 1, "Ожидался идентификатор после 'String'");
-                return;
-            }
-
-            if (currentToken.Code == CODE_ERROR)
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    currentToken.ErrorMessage ?? "Недопустимые символы в идентификаторе");
-                NextToken();
-            }
-
-            if (currentToken.Code != CODE_IDENTIFIER)
-            {
-                AddError(currentToken?.Value ?? "(конец файла)",
-                    currentToken?.Line ?? 1,
-                    currentToken?.StartPos ?? 1,
-                    "Ожидался идентификатор");
-                SkipToAssign();
-                return;
-            }
-
-            NextToken();
-
-
-            if (currentToken == null)
-            {
-                AddError("(конец файла)", 1, 1, "Ожидался оператор '='");
-                return;
-            }
-
-            if (currentToken.Code == CODE_ERROR)
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    currentToken.ErrorMessage ?? "Недопустимые символы перед '='");
-                NextToken();
-            }
-
-            if (currentToken.Code != CODE_ASSIGN)
-            {
-                AddError(currentToken?.Value ?? "(конец файла)",
-                    currentToken?.Line ?? 1,
-                    currentToken?.StartPos ?? 1,
-                    "Ожидался оператор присваивания '='");
-                SkipToString();
-                return;
-            }
-
-            NextToken();
-
-
-            if (currentToken == null)
-            {
-                AddError("(конец файла)", 1, 1, "Ожидалась строковая константа");
-                return;
-            }
-
-            bool isUnclosedString = false;
-
-            if (currentToken.Code == CODE_STRING)
-            {
-                if (!currentToken.Value.EndsWith("\""))
-                {
-                    isUnclosedString = true;
-                    AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                        "Незакрытая строковая константа");
-                }
-                NextToken();
-            }
-            else if (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)
-            {
-                isUnclosedString = true;
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    "Незакрытая строковая константа");
-                NextToken();
-            }
-            else
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    "Ожидалась строковая константа в двойных кавычках");
-                SkipToSemicolon();
-                return;
-            }
-
-
-            bool hasSemicolon = (currentToken != null && currentToken.Code == CODE_SEMICOLON);
-
-            if (isUnclosedString && hasSemicolon)
-            {
-                NextToken();
-                return;
-            }
-            else if (isUnclosedString && !hasSemicolon)
-            {
-
-                CheckSemicolon();
-                return;
-            }
-            else
-            {
-                CheckSemicolon();
-            }
-        }
-
-        private void ParseAfterError()
-        {
             while (currentToken != null)
             {
-                if (currentToken.Code == CODE_KEYWORD && currentToken.Value == "String")
+                switch (state)
                 {
-                    ParseStringDeclaration();
-                    return;
-                }
-                if (currentToken.Code == CODE_ASSIGN)
-                {
-                    NextToken();
-                    if (currentToken != null && (currentToken.Code == CODE_STRING ||
-                        (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)))
-                    {
-                        if (currentToken.Code == CODE_STRING && !currentToken.Value.EndsWith("\""))
+                    case 0: 
+
+                        if (currentToken.Code == CODE_ERROR)
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Недопустимые символы, ожидалось ключевое слово 'String'");
+
+                            int line = currentToken.Line;
+                            int pos = currentToken.StartPos + currentToken.Value.Length;
+
+                            NextToken();
+
+                           
+                            AddError("(пропущено)", line, pos, "Ожидалось ключевое слово 'String'");
+                            AddError("(пропущено)", line, pos, "Ожидался идентификатор");
+
+                            state = 2; 
+                            break;
+                        }
+
+                        if (currentToken.Code == CODE_SEMICOLON)
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Ожидалось ключевое слово 'String'");
+                            return;
+                        }
+
+                        if (currentToken.Code == CODE_KEYWORD && currentToken.Value == "String")
+                        {
+                            state = 1;
+                            NextToken();
+                        }
+                        else
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Ожидалось ключевое слово 'String'");
+                            NextToken();
+                        }
+                        break;
+
+                    case 1: 
+
+                        if (currentToken.Code == CODE_IDENTIFIER)
+                        {
+                            state = 2;
+                            NextToken();
+                        }
+                        else
+                        {
+                            AddError(currentToken?.Value ?? "(конец строки)",
+                                currentToken?.Line ?? 1,
+                                currentToken?.StartPos ?? 1,
+                                "Ожидался идентификатор");
+                            NextToken();
+                        }
+                        break;
+
+                    case 2: 
+
+                        if (currentToken == null)
+                        {
+                            AddError("(конец строки)", 1, 1,
+                                "Незавершённая конструкция, ожидалось ;");
+                            return;
+                        }
+
+                        if (currentToken.Code == CODE_ASSIGN)
+                        {
+                            state = 3;
+                            NextToken();
+                        }
+                        else
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Ожидался оператор '='");
+                            NextToken();
+                        }
+                        break;
+
+                    case 3: 
+
+                        if (currentToken == null)
+                        {
+                            AddError("(конец строки)", 1, 1,
+                                "Незавершённая конструкция, ожидалось ;");
+                            return;
+                        }
+
+                        if (currentToken.Code == CODE_STRING)
+                        {
+                            if (!currentToken.Value.EndsWith("\""))
+                            {
+                                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                    "Незакрытая строковая константа");
+                            }
+
+                            state = 4;
+                            NextToken();
+                        }
+                        else if (currentToken.Code == CODE_ERROR &&
+                                 currentToken.ErrorMessage?.Contains("строковая") == true)
                         {
                             AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
                                 "Незакрытая строковая константа");
+
+                            state = 4;
+                            NextToken();
                         }
-                        else if (currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true)
+                        else
                         {
                             AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                                "Незакрытая строковая константа");
+                                "Ожидалась строковая константа");
+                            NextToken();
                         }
-                        NextToken();
-                        CheckSemicolon();
-                        return;
-                    }
-                    else if (currentToken != null)
-                    {
-                        AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                            "Ожидалась строковая константа");
-                        CheckSemicolon();
-                        return;
-                    }
-                    break;
+                        break;
+
+                    case 4: 
+
+                        if (currentToken == null)
+                        {
+                            AddError("(конец строки)", 1, 1,
+                                "Незавершённая конструкция, ожидалось ;");
+                            return;
+                        }
+
+                        if (currentToken.Code == CODE_SEMICOLON)
+                        {
+                            return; 
+                        }
+                        else
+                        {
+                            AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
+                                "Ожидалась точка с запятой ';'");
+                            NextToken();
+                        }
+                        break;
                 }
-                NextToken();
             }
 
-            CheckSemicolon();
-        }
-
-        private void CheckSemicolon()
-        {
-            if (currentToken == null)
-            {
-                AddError("(конец строки)", 1, 1, "Ожидалась точка с запятой ';' в конце оператора");
-                return;
-            }
-
-            if (currentToken.Code == CODE_SEMICOLON)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                    "Ожидалась точка с запятой ';' в конце оператора");
-            }
-        }
-
-        private void SkipToNextString()
-        {
-            while (currentToken != null)
-            {
-                if (currentToken.Code == CODE_KEYWORD && currentToken.Value == "String")
-                    break;
-                if (currentToken.Code == CODE_ERROR)
-                {
-                    AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                        currentToken.ErrorMessage ?? "Недопустимые символы, пропущены");
-                }
-                NextToken();
-            }
-        }
-
-        private void SkipToAssign()
-        {
-            while (currentToken != null && currentToken.Code != CODE_ASSIGN)
-            {
-                if (currentToken.Code == CODE_ERROR)
-                {
-                    AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                        currentToken.ErrorMessage ?? "Недопустимые символы, пропущены");
-                }
-                NextToken();
-            }
-        }
-
-        private void SkipToString()
-        {
-            while (currentToken != null && currentToken.Code != CODE_STRING &&
-                   !(currentToken.Code == CODE_ERROR && currentToken.ErrorMessage?.Contains("строковая") == true))
-            {
-                if (currentToken.Code == CODE_ERROR && !currentToken.ErrorMessage.Contains("строковая"))
-                {
-                    AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                        currentToken.ErrorMessage ?? "Недопустимые символы, пропущены");
-                }
-                NextToken();
-            }
-        }
-
-        private void SkipToSemicolon()
-        {
-            while (currentToken != null && currentToken.Code != CODE_SEMICOLON)
-            {
-                if (currentToken.Code == CODE_ERROR)
-                {
-                    AddError(currentToken.Value, currentToken.Line, currentToken.StartPos,
-                        currentToken.ErrorMessage ?? "Недопустимые символы, пропущены");
-                }
-                NextToken();
-            }
-            if (currentToken != null && currentToken.Code == CODE_SEMICOLON)
-            {
-                NextToken();
-            }
+         
+            AddError("(конец строки)", 1, 1,
+                "Незавершённая конструкция, ожидалось ;");
         }
 
         private void AddError(string fragment, int line, int position, string description)
@@ -426,6 +237,7 @@ namespace WpfApp_3
                 if (err.Line == line && err.Position == position && err.Description == description)
                     return;
             }
+
             errors.Add(new SyntaxError(fragment, line, position, description));
         }
 
