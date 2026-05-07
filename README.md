@@ -60,28 +60,25 @@ String <идентификатор> = "<строковая_константа>";
 | № | Правило | Описание |
 |---|---------|----------|
 | 1 | ‹START› → String ‹SPACE› | Ключевое слово String |
-| 2 | ‹SPACE› → sp ‹ID› | Пробел после String |
+| 2 | ‹SPACE› → ' ' ‹ID› | Пробел после String |
 | 3 | ‹ID› → letter ‹IDREM› | Первая буква идентификатора |
-| 4 | ‹IDREM› → letter ‹IDREM› | Буква в идентификаторе |
-| 5 | ‹IDREM› → digit ‹IDREM› | Цифра в идентификаторе |
-| 6 | ‹IDREM› → = ‹ASSIGN› | Оператор присваивания |
-| 7 | ‹ASSIGN› → " ‹STRING› | Открывающая кавычка |
-| 8 | ‹STRING› → char ‹STRINGREM› | Первый символ строки |
-| 9 | ‹STRINGREM› → char ‹STRINGREM› | Символ строки (петля) |
-| 10 | ‹STRINGREM› → " ‹END› | Закрывающая кавычка |
-| 11 | ‹END› → ; | Точка с запятой |
+| 4 | ‹IDREM› → letter ‹IDREM›, digit ‹IDREM›, '=' ‹ASSIGN› | Буква, цифра, оператор присваивания в идентификаторе |
+| 5 | ‹ASSIGN› → " ‹STRING› | Открывающая кавычка |
+| 6 | ‹STRING› → symbols ‹STRINGREM› | Первый символ строки |
+| 7 | ‹STRINGREM› → symbols ‹STRINGREM›, " <END> | Символ строки (петля), Закрывающая кавычка |
+| 8 | ‹END› → ; | Точка с запятой |
 
 ### Терминальные символы
 
 | Терминал | Описание |
 |----------|----------|
 | String | ключевое слово String |
-| sp | пробельный символ |
+| ' ' | пробельный символ |
 | letter | буква (A-Z, a-z) |
 | digit | цифра (0-9) |
 | = | оператор присваивания |
 | " | двойная кавычка |
-| char | любой символ (кроме " и \n) |
+| symbols | любой символ (кроме " и \n) |
 | ; | точка с запятой |
 
 ### Нетерминальные символы
@@ -101,7 +98,7 @@ String <идентификатор> = "<строковая_константа>";
 
 **Z** = ‹START›
 
-**Vt** = { String, sp, letter, digit, =, ", char, ; }
+**Vt** = { String, ' ', letter, digit, =, ", symbols, ; }
 
 **Vn** = { ‹START›, ‹SPACE›, ‹ID›, ‹IDREM›, ‹ASSIGN›, ‹STRING›, ‹STRINGREM›, ‹END› }
 
@@ -122,26 +119,6 @@ String <идентификатор> = "<строковая_константа>";
 - **A, B** — нетерминальные символы;
 - **a** — терминальный символ.
 
-**Примеры продукций:**
-
-| Тип | Правило |
-|-----|---------|
-| A → aB | ‹START› → String ‹SPACE› |
-| A → aB | ‹SPACE› → sp ‹ID› |
-| A → aB | ‹ID› → letter ‹IDREM› |
-| A → aB | ‹IDREM› → letter ‹IDREM› |
-| A → aB | ‹IDREM› → digit ‹IDREM› |
-| A → aB | ‹IDREM› → = ‹ASSIGN› |
-| A → aB | ‹ASSIGN› → " ‹STRING› |
-| A → aB | ‹STRING› → char ‹STRINGREM› |
-| A → aB | ‹STRINGREM› → char ‹STRINGREM› |
-| A → aB | ‹STRINGREM› → " ‹END› |
-| A → a  | ‹END› → ; |
-
-Все продукции являются **праволинейными**, левая рекурсия отсутствует.
-
-Следовательно, грамматика является **полностью автоматной** и допускает построение конечного автомата для распознавания цепочек.
-
 ---
 
 ## 6. Метод анализа
@@ -151,7 +128,7 @@ String <идентификатор> = "<строковая_константа>";
 
 ## Диаграмма конечного автомата
 
-<img width="790" height="127" alt="image" src="https://github.com/user-attachments/assets/b7ed3b90-9f35-4086-9377-801bdef7599a" />
+<img width="828" height="141" alt="image" src="https://github.com/user-attachments/assets/2b73d19d-db6e-4c12-9036-cec3166bef78" />
 
 
 ---
