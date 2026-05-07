@@ -57,17 +57,14 @@ String <идентификатор> = "<строковая_константа>";
 
 ### Правила вывода (автоматная грамматика)
 
-| № | Правило | Описание |
-|---|---------|----------|
-| 1 | ‹START› → 'String' ‹SPACE› | Ключевое слово String |
-| 2 | ‹SPACE› → ' ' ‹ID› | Пробел после String |
-| 3 | ‹ID› → letter ‹IDREM› | Первая буква идентификатора |
-| 4 | ‹IDREM› → letter ‹IDREM›, digit ‹IDREM›, '=' ‹ASSIGN› | Буква, цифра, оператор присваивания в идентификаторе |
-| 5 | ‹ASSIGN› → '"' ‹STRING› | Открывающая кавычка |
-| 6 | ‹STRING› → symbols ‹STRINGREM› | Первый символ строки |
-| 7 | ‹STRINGREM› → symbols ‹STRINGREM›, '"' <END> | Символ строки (петля), Закрывающая кавычка |
-| 8 | ‹END› → ';' | Точка с запятой |
-
+1) ‹START› → 'String' ‹SPACE› 
+2) ‹SPACE› → ' ' ‹ID› 
+3) ‹ID› → letter ‹IDREM› 
+4) ‹IDREM› → letter ‹IDREM› | digit ‹IDREM› | '=' ‹ASSIGN› 
+5) ‹ASSIGN› → '"' ‹STRING› 
+6) ‹STRING› → symbols ‹STRINGREM›
+7) ‹STRINGREM› → symbols ‹STRINGREM› | '"' <END>
+8)  ‹END› → ';'
 
 ### Компоненты грамматики
 
