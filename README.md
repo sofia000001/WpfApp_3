@@ -151,8 +151,7 @@ String <идентификатор> = "<строковая_константа>";
 
 ## Диаграмма конечного автомата
 
-![Описание изображения]([https://github.com/user-attachments/assets/2118e180-1c35-4ebd-8bd4-826bad47d4a7])
-<img width="769" height="132" alt="image" src="https://github.com/user-attachments/assets/2118e180-1c35-4ebd-8bd4-826bad47d4a7" />
+<img width="769" height="132" alt="image" src="https://github.com/user-attachments/assets/b407a06f-5111-4605-883c-101b3abc39d6" />
 
 ---
 
